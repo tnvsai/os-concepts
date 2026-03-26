@@ -1,41 +1,64 @@
 /**
- * 🎓 OS CONCEPTS: The Simplest Read
+ * 🎓 OS CONCEPTS: Lowest-Level File Reading
  * 
  * DESCRIPTION:
- * A bare-bones example of using the lowest-level 'read' and 'write' 
- * system calls to read a small text file and print it to the screen.
+ * This program bypasses standard C library functions like `fopen` or `fgets` 
+ * and talks directly to the Operating System Kernel using the `open()`, 
+ * `read()`, and `write()` system calls.
  */
 
-#include <fcntl.h>  // Provides the O_RDONLY flag
-#include <unistd.h> // Provides read(), write(), close()
+#include <fcntl.h>  // Provides the O_RDONLY file control flag
+#include <unistd.h> // Provides the POSIX system calls: read, write, close
 #include <stdio.h>
 
 int main()
 {
-    // 1. OPEN: Ask the OS to access "test.txt" in Read-Only mode.
-    // Ensure you create a file named "test.txt" first, or this will fail!
+    printf("📖 Attempting to read 'test.txt' using basic system calls...\n\n");
+
+    /*
+     * 1. OPEN THE FILE
+     * open(filename, flags) asks the OS to find the file and prepare it for reading.
+     * It returns a "File Descriptor" (fd) - an integer representing the open file.
+     */
     int fd = open("test.txt", O_RDONLY);
     
     if (fd < 0) {
-        printf("Failed to open test.txt. Did you create it?\n");
+        printf("❌ Failed to open test.txt. Please create it first in this directory!\n");
         return 1;
     }
 
-    // 2. BUFFER: Reserve 100 bytes of memory to hold the data as it comes off the disk.
+    /*
+     * 2. PREPARE A RAM BUFFER
+     * Data from the hard drive must be temporarily stored in RAM.
+     */
     char buffer[100];
 
-    // 3. READ: Ask the OS to fill the buffer with up to 100 bytes of data.
-    // 'bytes_read' holds the actual number of letters pulled from the file.
+    /*
+     * 3. THE READ SYSTEM CALL
+     * read(file_descriptor, buffer_pointer, maximum_bytes_to_read)
+     * The OS pulls bytes from the file on disk into our buffer.
+     * 'bytes_read' will hold exactly how many bytes were successfully pulled.
+     */
     int bytes_read = read(fd, buffer, sizeof(buffer));
 
-    // 4. WRITE TO SCREEN
-    // Wait, why are we writing to "1"? 
-    // In Linux, '1' is the File Descriptor for Standard Output (the terminal screen).
-    // Writing to 1 is exactly what printf() does secretly behind the scenes!
-    write(1, buffer, bytes_read);
+    if (bytes_read > 0) {
+        /*
+         * 4. THE WRITE SYSTEM CALL
+         * write(file_descriptor, buffer, bytes_to_write)
+         * 
+         * Notice the first argument is '1'. 
+         * By universal Unix convention, File Descriptor 1 is Standard Output (the screen).
+         * This line does exactly what printf() does!
+         */
+        write(1, buffer, bytes_read);
+    } else {
+        printf("⚠️ The file was completely empty!\n");
+    }
 
-    // 5. CLOSE: Free the file descriptor back to the operating system.
+    // 5. CLEANUP
+    // Always give the file descriptor back to the OS when done.
     close(fd);
 
+    printf("\n\n✅ Done reading.\n");
     return 0;
 }
