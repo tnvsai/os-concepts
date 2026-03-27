@@ -35,6 +35,12 @@ Despite its violent name, the `kill()` system call is just used to send **any** 
 
 ---
 
+## The /proc Virtual Filesystem
+While technically a Kernel/Filesystem concept, `/proc` is extremely useful for systems programming and observing active processes. The files inside `/proc` do not exist on your hard drive! They are "virtual" files dynamically generated in RAM by the OS Kernel. When you use standard `read()` on a file like `/proc/cpuinfo`, the Kernel intercepts the read, grabs live CPU data, formats it as text, and hands it back to your program.
+
+---
+
 ## Programs in this Directory
 - **`signal_basic.c`**: Demonstrates how to override the default action of Ctrl+C (`SIGINT`) to print a custom message instead of crashing the program.
 - **`signal-kill.c`**: A very simple demonstration of one process sending a signal to another using the `kill()` function.
+- **`proc-read.c`**: A demonstration of reading the pseudo-file `/proc/cpuinfo` to ask the OS Kernel directly for live hardware statistics using standard `open()`, `read()`, and `write()` system calls.
