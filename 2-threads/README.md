@@ -36,6 +36,9 @@ A Semaphore is like a bouncer at a club. It is an integer counter that tracks ho
 ### Producer-Consumer Problem
 A classic synchronization challenge where a "Producer" thread generates data into a fixed-size buffer, and a "Consumer" thread simultaneously removes it. They must be carefully synchronized using Mutexes and Semaphores so the Producer sleeps if the buffer is entirely **full**, the Consumer sleeps if it's entirely **empty**, and they never corrupt the buffer.
 
+### Spinlocks
+A Spinlock is an alternative to a Mutex. When a thread encounters a locked Mutex, the OS puts the thread to sleep (involving a slow "context switch"). When a thread encounters a locked Spinlock, it **does not go to sleep**. Instead, it eternally loops ("spins") on the CPU, aggressively checking the lock over and over until it opens. Spinlocks are incredibly fast if the lock is held for only a few microseconds, but they wildly waste CPU power if the lock is held for a long time.
+
 ---
 
 ## Programs in this Directory
@@ -43,6 +46,7 @@ A classic synchronization challenge where a "Producer" thread generates data int
 - **`thread-argument.c`**: Shows how to pass variables to a thread using generic `void*` pointers.
 - **`race-condition.c`**: A broken program! Demonstrates what happens when two threads violently increment a shared counter at the same time without giving each other turns. It will output an unpredictable number.
 - **`mutex-fix.c`**: The corrected version. Uses a Mutex lock to ensure only one thread can increment the counter at a time, guaranteeing the correct final result!
+- **`spinlock.c`**: An alternative to `mutex-fix.c`. Uses a Spinlock to protect the shared counter instead of putting the threads to sleep.
 - **`semaphore_basic.c`**: Demonstrates exactly how a basic POSIX Semaphore stringently limits the maximum number of threads (e.g. 2 instances) allowed into a critical section.
 - **`producer-consumer.c`**: Implements the classic bounded-buffer Producer-Consumer algorithm using Mutexes and Semaphores to coordinate data sharing completely safely.
 
